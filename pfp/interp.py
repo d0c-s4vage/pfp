@@ -13,6 +13,7 @@ import re
 import six
 import sys
 import traceback
+import zipfile
 
 import py010parser
 import py010parser.c_parser
@@ -552,8 +553,19 @@ class PfpInterp(object):
 		if len(cls._natives) > 0:
 			return
 
-		glob_pattern = os.path.join(os.path.dirname(__file__), "native", "*.py")
-		for filename in glob.glob(glob_pattern):
+		pythonfiles = []
+
+		mydir = os.path.dirname(__file__)
+		if '.zip' in mydir:
+			parts = mydir.split('.zip', 1)
+			zipfilename = parts[0] + '.zip'
+			with zipfile.ZipFile(zipfilename) as myzip:
+				pythonfiles = [os.path.join(zipfilename, i) for i in myzip.namelist() if i.startswith('pfp/native') and i.endswith('.py')]
+		else:
+			glob_pattern = os.path.join(mydir, "native", "*.py")
+			pythonfiles = glob.glob(glob_pattern)
+
+		for filename in pythonfiles:
 			basename = os.path.basename(filename).replace(".py", "")
 			if basename == "__init__":
 				continue
