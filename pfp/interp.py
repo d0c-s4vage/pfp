@@ -1208,6 +1208,11 @@ class PfpInterp(object):
 
 		metadata_info = []
 
+		if "format" in node.metadata.keyvals or "format" in keyvals:
+			metadata_info.append(
+				self._handle_format_metadata(node, scope, ctxt, stream)
+			)
+
 		if "watch" in node.metadata.keyvals or "update" in keyvals:
 			metadata_info.append(
 				self._handle_watch_metadata(node, scope, ctxt, stream)
@@ -1223,6 +1228,22 @@ class PfpInterp(object):
 		#char blah[60] <pack=Zip, unpack=Unzip, packtype=DataType>;
 		#char blah[60] <packer=Zip, packtype=DataType>;
 		#int checksum <watch=field1,field2,field3, update=Crc32>;
+	
+	def _handle_format_metadata(self, node, scope, ctxt, stream):
+		"""Handle format specifiers for fields
+		"""
+		keyvals = node.metadata.keyvals
+		if "format" not in keyvals:
+			raise errors.PfpError("Display format must be set")
+
+		format_type_array = keyvals["format"].split(",")
+		format_type = format_type_array[0]
+
+		return {
+			"type": "format",
+			"format": format_type,
+			"func_call_info": (ctxt, scope, stream, self, self._coord)
+		}
 	
 	def _handle_watch_metadata(self, node, scope, ctxt, stream):
 		"""Handle watch vars for fields
