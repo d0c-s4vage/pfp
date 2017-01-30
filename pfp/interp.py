@@ -571,14 +571,20 @@ class PfpInterp(object):
             setattr(mod, "PYSTR", fields.get_str)
 
     def __init__(self, debug=False, parser=None, int3=True):
-        """
+        """Create a new instance of the ``PfpInterp`` class.
+
+        :param bool debug: if debug output should be used (default=``False``)
+        :param :any:`py010parser.c_parser.CParser` parser: The ``py010parser.c_parser.CParser`` to use (default=``None``)
+        :param bool int3: If debug breakpoints (calls to :any:`pfp.native.dbg.int3` ``Int3()``) are active (default=``True``)
         """
         self.__class__.define_natives()
 
         self._log = DebugLogger(debug)
         # TODO nested debuggers aren't currently allowed
         self._debugger = None
+        # why is this here?? this isn't used at all
         self._debug = debug
+        self._printf = True
         self._break_type = self.BREAK_NONE
         self._break_level = 0
         self._no_debug = False
@@ -650,18 +656,20 @@ class PfpInterp(object):
     # PUBLIC
     # --------------------
 
-    def parse(self, stream, template, predefines=True, orig_filename=None, keep_successful=False):
+    def parse(self, stream, template, predefines=True, orig_filename=None, keep_successful=False, printf=True):
         """Parse the data stream using the template (e.g. parse the 010 template
         and interpret the template using the stream as the data source).
 
         :stream: The input data stream
         :template: The template to parse the stream with
         :keep_successful: Return whatever was successfully parsed before an error. ``_pfp__error`` will contain the exception (if one was raised)
+        :param bool printf: If ``False``, printfs will be noops (default=``True``)
         :returns: Pfp Dom
 
         """
         self._dlog("parsing")
 
+        self._printf = printf
         self._orig_filename = orig_filename
         self._stream = stream
         self._template = template
@@ -1637,7 +1645,7 @@ class PfpInterp(object):
             "!":        lambda x,v: not x,
             "-":        lambda x,v: -x,
             "sizeof":    lambda x,v: (fields.UInt64()+x._pfp__width()),
-            "startof":    lambda x,v: x._pfp__offset,
+            "startof":    lambda x,v: (fields.UInt64()+x._pfp__offset),
         }
 
         if node.op not in switch and node.op not in special_switch:
@@ -1647,8 +1655,10 @@ class PfpInterp(object):
             return special_switch[node.op](node, scope, ctxt, stream)
 
         field = self._handle_node(node.expr, scope, ctxt, stream)
+        if type(field) is type:
+            field = field()
         res = switch[node.op](field, 1)
-        if res in [True, False]:
+        if type(res) is bool:
             new_res = field.__class__()
             new_res._pfp__set_value(1 if res == True else 0)
             res = new_res
@@ -2362,8 +2372,11 @@ class PfpInterp(object):
             names = copy.copy(names)
             names.pop()
             names += resolved_names
-
-        res = switch[names[-1]]
+        
+        if len(names) >= 2 and names[-1] == names[-2] and names[-1] == "long":
+            res = "Int64"
+        else:        
+            res = switch[names[-1]]
 
         if names[-1] in ["char", "short", "int", "long"] and "unsigned" in names[:-1]:
             res = "U" + res
