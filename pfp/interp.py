@@ -379,7 +379,8 @@ class Scope(object):
         input stream)
 
         :name: The name of the id
-        :recurse: Whether parent scopes should also be searched (defaults to True)
+        :recurse: Whether parent scopes should also be searched (defaults to
+            True)
         :returns: TODO
 
         """
@@ -543,7 +544,7 @@ class PfpInterp(object):
         .. note::
             The :any:`@native <pfp.native.native>` decorator exists to simplify this.
 
-        All native functions must have the signature ``def func(params, ctxt, scope, stream, coord [,interp])``,
+        All native functions must have the signature``def func(params, ctxt, scope, stream, coord [,interp])``,
         optionally allowing an interpreter param if ``send_interp`` is ``True``.
 
         Example:
@@ -563,7 +564,7 @@ class PfpInterp(object):
         :param type(pfp.fields.Field) ret: The field class that the return value should be cast to.
         :param pfp.interp.PfpInterp interp: The specific pfp interpreter the function should be defined in.
         :param bool send_interp: If true, the current pfp interpreter will be added as an argument to the function.
-        """
+        """  # noqa
         if interp is None:
             natives = cls._natives
         else:

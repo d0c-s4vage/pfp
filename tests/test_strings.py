@@ -7,12 +7,12 @@ import struct
 import sys
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pfp
 import pfp.errors
 from pfp.fields import *
 import pfp.utils
+
 
 import utils
 
@@ -51,7 +51,7 @@ class TestStrings(utils.PfpTestCase):
 
     def test_basic_wstring(self):
         dom = self._test_parse_build(
-            "h\x00e\x00l\x00l\x00o\x00 \x00t\x00h\x00e\x00r\x00e\x00\x00\x00g\x00o\x00o\x00d\x00 \x00b\x00y\x00t\x00e\x00\x00\x00",
+            "h\x00e\x00l\x00l\x00o\x00 \x00t\x00h\x00e\x00r\x00e\x00\x00\x00g\x00o\x00o\x00d\x00 \x00b\x00y\x00t\x00e\x00\x00\x00",  # noqa
             """
                 struct {
                     wstring hello;
@@ -112,14 +112,14 @@ class TestStrings(utils.PfpTestCase):
         dom = self._test_parse_build(
             "\x01\x02\x03\x04\x05",
             """
-                             local string temp_expected, temp_char;
-                             local int i;
-                             for(i = 0; i < 5; i++) {
-                                 SPrintf(temp_char, "%.2X", ReadUByte(FTell()+i));
-                                 temp_expected += temp_char;
-                             }
-                             Printf("%s", temp_expected);
-                     """,
+                 local string temp_expected, temp_char;
+                 local int i;
+                 for(i = 0; i < 5; i++) {
+                     SPrintf(temp_char, "%.2X", ReadUByte(FTell()+i));
+                     temp_expected += temp_char;
+                 }
+                 Printf("%s", temp_expected);
+            """,  # noqa
             stdout="0102030405",
             verify=False,
         )
