@@ -6,12 +6,12 @@ import struct
 import sys
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pfp
 import pfp.errors
 from pfp.fields import *
 import pfp.utils
+
 
 import utils
 

@@ -7,4 +7,22 @@ python:
   - "3.7"
 install:
     - pip install -r requirements.txt
-script: bin/run_tests
+    # needs to be able to be installed without error on all versions
+    - pip install .
+
+stages:
+  - codestyle
+  - test
+jobs:
+  include:
+    - stage: codestyle
+      python: "3.7"
+      install:
+        - pip install pycodestyle
+      script:
+        - bin/pep8
+
+      # will run on all defined python versions above
+    - stage: test
+      script:
+        - bin/run_tests

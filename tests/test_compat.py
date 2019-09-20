@@ -6,12 +6,12 @@ import six
 import sys
 import unittest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pfp
 import pfp.fields
 import pfp.interp
 import pfp.utils
+
 
 import utils
 
@@ -493,8 +493,9 @@ class TestCompatTools(utils.PfpTestCase):
         pass
 
     def test_find_all1(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
@@ -506,26 +507,27 @@ class TestCompatTools(utils.PfpTestCase):
                 for(local int i = 0 ; i < results.count; i++) {
                     Printf("start-size:%d-%d", results.start[i], results.size[i]);
                 }
-            """,
+            """,  # noqa
             stdout="count:3start-size:5-5start-size:17-5start-size:28-5",
             verify=False,
             predefines=True,
         )
 
     def test_find_all2(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
         dom = self._test_parse_build(
             "abcd HELLO THERE HELLO blah HELLO blkajsdf",
             """
-                local TFindResults results = FindAll("HELLO");
-                Printf("count:%d", results.count);
-                for(local int i = 0 ; i < results.count; i++) {
-                    Printf("start-size:%d-%d", results.start[i], results.size[i]);
-                }
+            local TFindResults results = FindAll("HELLO");
+            Printf("count:%d", results.count);
+            for(local int i = 0 ; i < results.count; i++) {
+                Printf("start-size:%d-%d", results.start[i], results.size[i]);
+            }
             """,
             stdout="count:3start-size:5-5start-size:17-5start-size:28-5",
             verify=False,
@@ -533,19 +535,20 @@ class TestCompatTools(utils.PfpTestCase):
         )
 
     def test_find_all_no_match_case(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
         dom = self._test_parse_build(
             "abcd HELLO THERE HELLO blah HellO blkajsdf",
             """
-                local TFindResults results = FindAll("HELLO", 0/*match case*/);
-                Printf("count:%d", results.count);
-                for(local int i = 0 ; i < results.count; i++) {
-                    Printf("start-size:%d-%d", results.start[i], results.size[i]);
-                }
+            local TFindResults results = FindAll("HELLO", 0/*match case*/);
+            Printf("count:%d", results.count);
+            for(local int i = 0 ; i < results.count; i++) {
+                Printf("start-size:%d-%d", results.start[i], results.size[i]);
+            }
             """,
             stdout="count:3start-size:5-5start-size:17-5start-size:28-5",
             verify=False,
@@ -553,8 +556,9 @@ class TestCompatTools(utils.PfpTestCase):
         )
 
     def test_find_all_whole_words_only(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
@@ -566,15 +570,16 @@ class TestCompatTools(utils.PfpTestCase):
                 for(local int i = 0 ; i < results.count; i++) {
                     Printf("start-size:%d-%d", results.start[i], results.size[i]);
                 }
-            """,
+            """,  # noqa
             stdout="count:3start-size:5-5start-size:22-5start-size:33-5",
             verify=False,
             predefines=True,
         )
 
     def test_find_all_wildcards(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
@@ -591,15 +596,16 @@ class TestCompatTools(utils.PfpTestCase):
                 for(local int i = 0 ; i < results.count; i++) {
                     Printf("start-size:%d-%d", results.start[i], results.size[i]);
                 }
-            """,
+            """,  # noqa
             stdout="count:3start-size:5-5start-size:22-5start-size:33-5",
             verify=False,
             predefines=True,
         )
 
     def test_find_all_wildcards2(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
@@ -616,15 +622,16 @@ class TestCompatTools(utils.PfpTestCase):
                 for(local int i = 0 ; i < results.count; i++) {
                     Printf("start-size:%d-%d", results.start[i], results.size[i]);
                 }
-            """,
+            """,  # noqa
             stdout="count:3start-size:5-5start-size:16-5start-size:27-5",
             verify=False,
             predefines=True,
         )
 
     def test_find_all_with_size(self):
-        # TODO maybe we should just expose all defined fields/locals/types/vars/etc
-        # to the user? then could just directly test dom.results...
+        # TODO maybe we should just expose all defined
+        # fields/locals/types/vars/etc to the user? then could just directly
+        # test dom.results...
         #
         # I like having it a bit cleaner though and not cluttered with
         # all of the locals.
@@ -645,7 +652,7 @@ class TestCompatTools(utils.PfpTestCase):
                 for(local int i = 0 ; i < results.count; i++) {
                     Printf("start-size:%d-%d", results.start[i], results.size[i]);
                 }
-            """,
+            """,  # noqa
             stdout="count:2start-size:5-5start-size:16-5",
             verify=False,
             predefines=True,

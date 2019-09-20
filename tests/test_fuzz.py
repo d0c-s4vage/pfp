@@ -13,14 +13,12 @@ import sys
 import unittest
 
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-
 import pfp
 import pfp.fields
 import pfp.fuzz
 import pfp.interp
 import pfp.utils
+
 
 import utils
 
@@ -73,8 +71,8 @@ class TestPfpFuzz(unittest.TestCase):
             for mutated in pfp.fuzz.mutate(
                 dom, "basic", num=100, at_once=at_once, yield_changed=False
             ):
-                # make sure it does not return a tuple, as would be the case with
-                # yield_changed = True
+                # make sure it does not return a tuple, as would be the case
+                # with yield_changed = True
                 self.assertFalse(isinstance(mutated, tuple))
 
 
