@@ -14,13 +14,14 @@ import pfp.utils
 
 import utils
 
+
 class TestStructUnion(utils.PfpTestCase):
     def setUp(self):
         pass
 
     def tearDown(self):
         pass
-    
+
     def test_field_path(self):
         dom = self._test_parse_build(
             "Abbbb4141414142424242",
@@ -48,7 +49,7 @@ class TestStructUnion(utils.PfpTestCase):
         self.assertEqual(dom.root.nested1.nested2.array[1]._pfp__path(), "root.nested1.nested2.array[1]")
         self.assertEqual(dom.root.nested1.nested2.array[2]._pfp__path(), "root.nested1.nested2.array[2]")
         self.assertEqual(dom.root.nested1.nested2.array[3]._pfp__path(), "root.nested1.nested2.array[3]")
-    
+
     def test_struct(self):
         dom = self._test_parse_build(
             "abcddcba",
@@ -61,7 +62,7 @@ class TestStructUnion(utils.PfpTestCase):
                 blah some_struct2;
             """,
         )
-    
+
     def test_struct_with_parameters(self):
         dom = self._test_parse_build(
             "aabbb",
@@ -76,7 +77,7 @@ class TestStructUnion(utils.PfpTestCase):
         )
         self.assertEqual(dom.test.chars1, "aa")
         self.assertEqual(dom.test.chars2, "bbb")
-    
+
     def test_struct_with_parameters2(self):
         # ``descr_length l(bytes)`` is being treated as a function
         # declaration!
@@ -90,14 +91,14 @@ class TestStructUnion(utils.PfpTestCase):
 
                 local int bytes = 4;
                 descr_length l(bytes);
-            """
+            """,
         )
         self.assertEqual(len(dom.l.b), 4)
         self.assertEqual(dom.l.b[0], 1)
         self.assertEqual(dom.l.b[1], 2)
         self.assertEqual(dom.l.b[2], 3)
         self.assertEqual(dom.l.b[3], 4)
-    
+
     def test_struct_with_parameters3(self):
         # ``descr_length l(bytes)`` is being treated as a function
         # declaration!
@@ -112,7 +113,7 @@ class TestStructUnion(utils.PfpTestCase):
 
                 local int bytes = 4;
                 descr_length l(bytes, 3);
-            """
+            """,
         )
         self.assertEqual(len(dom.l.b), 4)
         self.assertEqual(dom.l.b[0], 1)
@@ -123,7 +124,7 @@ class TestStructUnion(utils.PfpTestCase):
         self.assertEqual(dom.l.c[0], 1)
         self.assertEqual(dom.l.c[1], 2)
         self.assertEqual(dom.l.c[2], 3)
-    
+
     def test_struct_decl_with_struct_keyword(self):
         dom = self._test_parse_build(
             "ABCD",
@@ -136,31 +137,32 @@ class TestStructUnion(utils.PfpTestCase):
                 } BLAH;
 
                 struct BLAH decldStruct;
-            """
+            """,
         )
 
         self.assertEqual(dom.decldStruct.a, ord("A"))
         self.assertEqual(dom.decldStruct.b, ord("B"))
         self.assertEqual(dom.decldStruct.c, ord("C"))
         self.assertEqual(dom.decldStruct.d, ord("D"))
-    
+
     def test_struct_initialization(self):
         # local structs aren't allowed!!!
         return
-#        dom = self._test_parse_build(
-#            "",
-#            """
-#                typedef struct {
-#                    char a;
-#                    char b;
-#                    char c;
-#                    char d;
-#                } blah;
-#
-#                local blah some_struct = { 'a', 'b', 'c', 'd'};
-#            """
-#        )
-    
+
+    #        dom = self._test_parse_build(
+    #            "",
+    #            """
+    #                typedef struct {
+    #                    char a;
+    #                    char b;
+    #                    char c;
+    #                    char d;
+    #                } blah;
+    #
+    #                local blah some_struct = { 'a', 'b', 'c', 'd'};
+    #            """
+    #        )
+
     def test_union(self):
         dom = self._test_parse_build(
             "abcd",
@@ -176,9 +178,9 @@ class TestStructUnion(utils.PfpTestCase):
                 } blah;
 
                 blah some_union;
-            """
+            """,
         )
-    
+
     def test_union_complex(self):
         dom = self._test_parse_build(
             "\x00abcd",
@@ -197,14 +199,14 @@ class TestStructUnion(utils.PfpTestCase):
                         uchar raw[sizeof(chars)];
                     } onion;
                 } test;
-            """
+            """,
         )
         self.assertEqual(dom.test.onion.raw, "abcd")
         self.assertEqual(dom.test.onion.chars.a, ord("a"))
         self.assertEqual(dom.test.onion.chars.b, ord("b"))
         self.assertEqual(dom.test.onion.chars.c, ord("c"))
         self.assertEqual(dom.test.onion.chars.d, ord("d"))
-    
+
     def test_union_offset1(self):
         dom = self._test_parse_build(
             "abcd",
@@ -218,10 +220,10 @@ class TestStructUnion(utils.PfpTestCase):
                     } union_test;
                     char d;
                 } test;
-            """
+            """,
         )
         self.assertEqual(dom.test.union_test._pfp__offset, 2)
-    
+
     def test_union_offset2(self):
         dom = self._test_parse_build(
             "abcd",
@@ -237,10 +239,10 @@ class TestStructUnion(utils.PfpTestCase):
                     CHAR_UNION union_test;
                     char d;
                 } test;
-            """
+            """,
         )
         self.assertEqual(dom.test.union_test._pfp__offset, 2)
-    
+
     def test_auto_increment_field_names(self):
         # when a field is declared multiple times with the same name, but
         # not consecutively, the fields should get a sequential number assigned
@@ -253,7 +255,7 @@ class TestStructUnion(utils.PfpTestCase):
                     char header;
                     short val;
                 }
-            """
+            """,
         )
 
         self.assertEqual(dom.header_0, ord("a"))
@@ -261,7 +263,7 @@ class TestStructUnion(utils.PfpTestCase):
 
         self.assertEqual(dom.header_1, ord("0"))
         self.assertEqual(dom.val_1, 2)
-    
+
     def test_auto_increment_but_still_reference_last_decl_normal(self):
         # this is an interesting behavior of 010 scripts. When a field
         # is repeatedly declared, 010 scripts do not append a suffix to
@@ -279,7 +281,7 @@ class TestStructUnion(utils.PfpTestCase):
                     Printf("%s|", str);
                 }
             """,
-            stdout="a|b|c|"
+            stdout="a|b|c|",
         )
 
     def test_implicit_array_dot_notation_for_last(self):
@@ -300,8 +302,9 @@ class TestStructUnion(utils.PfpTestCase):
                 }
                 Printf("%d", total_length);
             """,
-            stdout="3"
+            stdout="3",
         )
+
 
 if __name__ == "__main__":
     unittest.main()
