@@ -1,0 +1,19 @@
+BigEndian();
+ 
+typedef struct {
+    uint32 length;
+    char type[4];
+    char data[length];
+    uint32 crc;
+} PngChunk;
+
+Int3();
+ 
+struct {
+    uchar signature[8];
+ 
+    while (!FEof()) {
+        PngChunk chunks;
+    }
+} PNG;
+
