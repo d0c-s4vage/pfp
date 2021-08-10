@@ -334,6 +334,24 @@ class TestArrays(utils.PfpTestCase):
             stdout="00|00|00|00|",
         )
 
+    def test_numerical_array_offset(self):
+        dom = self._test_parse_build(
+            "\xFF\x00\x00\x11\x11\x22\x22",
+            """
+                char shift_by_one;
+                uint16 the_array[3];
+            """
+        )
+
+        self.assertEqual(dom.the_array[0]._pfp__offset, 1)
+        self.assertEqual(dom.the_array[1]._pfp__offset, 3)
+        self.assertEqual(dom.the_array[2]._pfp__offset, 5)
+
+        adhoc_array = Array(3, dom.the_array.field_cls)
+        self.assertEqual(adhoc_array[0]._pfp__offset, -1)
+        self.assertEqual(adhoc_array[1]._pfp__offset, -1)
+        self.assertEqual(adhoc_array[2]._pfp__offset, -1)
+
 
 if __name__ == "__main__":
     unittest.main()
