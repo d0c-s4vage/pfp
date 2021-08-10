@@ -2313,6 +2313,8 @@ class Array(Field):
             res._pfp__parent = self
             res._pfp__array_idx = idx
             res._pfp__name = "{}[{}]".format(self._pfp__name, idx)
+            if self._pfp__offset >= 0:
+                res._pfp__offset = self._pfp__offset + offset
             return res
 
     def __setitem__(self, idx, value):
