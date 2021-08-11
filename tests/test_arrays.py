@@ -334,6 +334,27 @@ class TestArrays(utils.PfpTestCase):
             stdout="00|00|00|00|",
         )
 
+    def test_parent_is_set_for_array_items(self):
+        dom = self._test_parse_build(
+            "\x00\x00\x11\x11\x22\x22",
+            """
+                typedef struct _struct_type {
+                    char x;
+                    char y;
+                } struct_type;
+
+                struct_type the_array[3];
+            """
+        )
+
+        self.assertIs(dom.the_array[0]._pfp__parent, dom.the_array)
+        self.assertIs(dom.the_array[1]._pfp__parent, dom.the_array)
+        self.assertIs(dom.the_array[2]._pfp__parent, dom.the_array)
+
+        adhoc_array = Array(3, dom.the_array.field_cls)
+        self.assertIs(adhoc_array[0]._pfp__parent, adhoc_array)
+        self.assertIs(adhoc_array[1]._pfp__parent, adhoc_array)
+        self.assertIs(adhoc_array[2]._pfp__parent, adhoc_array)
 
 if __name__ == "__main__":
     unittest.main()

@@ -2115,7 +2115,7 @@ class Array(Field):
         else:
             if width is not None:
                 for x in six.moves.range(self.width):
-                    self.items.append(self.field_cls())
+                    self.append(self.field_cls())
 
     def _pfp__snapshot(self, recurse=True):
         """Save off the current value of the field
@@ -2251,8 +2251,7 @@ class Array(Field):
             for x in six.moves.range(PYVAL(self.width)):
                 field = self.field_cls(stream)
                 field._pfp__name = "{}[{}]".format(self._pfp__name, x)
-                # field._pfp__parse(stream, save_offset)
-                self.items.append(field)
+                self.append(field)
 
             if self._pfp__can_unpack():
                 curr_offset = stream.tell()
