@@ -832,7 +832,7 @@ class Struct(Field):
         modified_watchers = []
         for x in six.moves.range(len(self._pfp__children)):
             modified_watchers += self._pfp__children[x]._pfp__set_value(value[x])
-        return modified_watches
+        return modified_watchers
 
     def _pfp__add_child(self, name, child, stream=None, overwrite=False):
         """Add a child to the Struct field. If multiple consecutive fields are
@@ -2098,13 +2098,14 @@ class Array(Field):
     def __init__(self, width, field_cls, stream=None, metadata_processor=None):
         """ Create an array field of size "width" from the stream
         """
+        self.items = []
+
         super(Array, self).__init__(
             stream=None, metadata_processor=metadata_processor
         )
 
         self.width = width
         self.field_cls = field_cls
-        self.items = []
         self.raw_data = None
         self.implicit = False
 
@@ -2115,7 +2116,7 @@ class Array(Field):
         else:
             if width is not None:
                 for x in six.moves.range(self.width):
-                    self.items.append(self.field_cls())
+                    self.append(self.field_cls())
 
     def _pfp__snapshot(self, recurse=True):
         """Save off the current value of the field
@@ -2139,9 +2140,9 @@ class Array(Field):
 
     def append(self, item):
         # TODO check for consistent type
-        item._pfp__parent = self
         self.items.append(item)
         self.width = len(self.items)
+        self._configure_item(self.items[-1], self.width - 1)
 
     def is_stringable(self):
         # TODO WChar
@@ -2211,17 +2212,21 @@ class Array(Field):
         #        len(value)
         #    ))
 
-        if len(value) > len(self.items):
-            self.items.extend([None] * (len(value) - len(self.items)))
-
-        for idx, item in enumerate(value):
+        new_items = []
+        for item in value:
             if not isinstance(item, Field):
                 new_item = self.field_cls()
                 new_item._pfp__set_value(item)
                 item = new_item
-            self.items[idx] = item
+            new_items.append(item)
 
-        self.width = len(self.items)
+        if len(new_items) < len(self.items):
+            new_items += self.items[len(new_items):]
+
+        self.items = []
+        self.width = 0
+        for item in new_items:
+            self.append(item)
 
         # see #54 - make sure raw_data is set to None if overwriting with
         # a new array/list/set/tuple
@@ -2250,9 +2255,7 @@ class Array(Field):
             self.items = []
             for x in six.moves.range(PYVAL(self.width)):
                 field = self.field_cls(stream)
-                field._pfp__name = "{}[{}]".format(self._pfp__name, x)
-                # field._pfp__parse(stream, save_offset)
-                self.items.append(field)
+                self.append(field)
 
             if self._pfp__can_unpack():
                 curr_offset = stream.tell()
@@ -2310,15 +2313,14 @@ class Array(Field):
             stream = bitwrap.BitwrappedStream(six.BytesIO(data))
             res = self.field_cls(stream)
             res._pfp__watch(self)
-            res._pfp__parent = self
-            res._pfp__array_idx = idx
-            res._pfp__name = "{}[{}]".format(self._pfp__name, idx)
+            self._configure_item(res, idx)
             return res
 
     def __setitem__(self, idx, value):
         if isinstance(value, Field):
             if self.raw_data is None:
                 self.items[idx] = value
+                self._configure_item(self.items[idx], idx)
             else:
                 if self.width < 0 or idx + 1 > self.width:
                     raise IndexError(idx)
@@ -2333,6 +2335,13 @@ class Array(Field):
             self[idx]._pfp__set_value(value)
 
         self._pfp__notify_update(self)
+
+    def __setattr__(self, name, value):
+        super(Array, self).__setattr__(name, value)
+
+        if name == "_pfp__name":
+            for idx, item in enumerate(self.items):
+                item._pfp__name = "{}[{}]".format(self._pfp__name, idx)
 
     def __repr__(self):
         other = ""
@@ -2381,6 +2390,13 @@ class Array(Field):
         """Iterate over all items in this array
         """
         return self.items.__iter__()
+
+    def _configure_item(self, item, idx):
+        item._pfp__parent = self
+        item._pfp__name = "{}[{}]".format(self._pfp__name, idx)
+        item._pfp__array_idx = idx
+        if self._pfp__offset >= 0 and self.raw_data is not None:
+            item._pfp__offset = self._pfp__offset + self.field_cls.width * idx
 
 
 # http://www.sweetscape.com/010editor/manual/ArraysStrings.htm

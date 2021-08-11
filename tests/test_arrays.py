@@ -334,6 +334,88 @@ class TestArrays(utils.PfpTestCase):
             stdout="00|00|00|00|",
         )
 
+    def test_parent_is_set_for_array_items(self):
+        dom = self._test_parse_build(
+            "\x00\x00\x11\x11\x22\x22",
+            """
+                typedef struct _struct_type {
+                    char x;
+                    char y;
+                } struct_type;
+
+                struct_type the_array[3];
+            """
+        )
+
+        self.assertIs(dom.the_array[0]._pfp__parent, dom.the_array)
+        self.assertIs(dom.the_array[1]._pfp__parent, dom.the_array)
+        self.assertIs(dom.the_array[2]._pfp__parent, dom.the_array)
+
+        adhoc_array = Array(3, dom.the_array.field_cls)
+        self.assertIs(adhoc_array[0]._pfp__parent, adhoc_array)
+        self.assertIs(adhoc_array[1]._pfp__parent, adhoc_array)
+        self.assertIs(adhoc_array[2]._pfp__parent, adhoc_array)
+
+    def test_parent_of_items_is_set_when_changing_value(self):
+        dom = self._test_parse_build(
+            "\x00\x00\x11\x11\x22\x22",
+            """
+                typedef struct _struct_type {
+                    char x;
+                    char y;
+                } struct_type;
+
+                struct_type the_array[3];
+            """
+        )
+
+        dom.the_array._pfp__set_value([[1, 1], [2, 2], [3, 3]])
+        self.assertIs(dom.the_array[0]._pfp__parent, dom.the_array)
+        self.assertIs(dom.the_array[1]._pfp__parent, dom.the_array)
+        self.assertIs(dom.the_array[2]._pfp__parent, dom.the_array)
+
+    def test_path_for_array_items(self):
+        dom = self._test_parse_build(
+            "\x00\x00\x11\x11\x22\x22",
+            """
+                typedef struct _two_chars {
+                    char x;
+                    char y;
+                } two_chars;
+
+                struct {
+                    two_chars the_array[3];
+                } container;
+            """
+        )
+
+        self.assertEqual(dom.container.the_array[1]._pfp__path(), "container.the_array[1]")
+        self.assertEqual(dom.container.the_array[1].x._pfp__path(), "container.the_array[1].x")
+        self.assertEqual(dom.container.the_array[1].y._pfp__path(), "container.the_array[1].y")
+
+        adhoc_array = Array(3, dom.container.the_array.field_cls)
+        adhoc_array._pfp__name = "new_name"
+        self.assertEqual(adhoc_array[1]._pfp__path(), "new_name[1]")
+        self.assertEqual(adhoc_array[1].x._pfp__path(), "new_name[1].x")
+        self.assertEqual(adhoc_array[1].y._pfp__path(), "new_name[1].y")
+
+    def test_path_for_inserted_array_item(self):
+        dom = self._test_parse_build(
+            "\x00\x00\x11\x11\x22\x22",
+            """
+                typedef struct _two_chars {
+                    char x;
+                    char y;
+                } two_chars;
+
+                two_chars the_array[3];
+            """
+        )
+
+        dom.the_array[1] = dom.the_array.field_cls()
+        self.assertEqual(dom.the_array[1]._pfp__path(), "the_array[1]")
+        self.assertEqual(dom.the_array[1].x._pfp__path(), "the_array[1].x")
+        self.assertEqual(dom.the_array[1].y._pfp__path(), "the_array[1].y")
 
 if __name__ == "__main__":
     unittest.main()
