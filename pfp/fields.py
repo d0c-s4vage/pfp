@@ -2140,10 +2140,9 @@ class Array(Field):
 
     def append(self, item):
         # TODO check for consistent type
-        item._pfp__parent = self
-        item._pfp__name = "{}[{}]".format(self._pfp__name, self.width)
         self.items.append(item)
         self.width = len(self.items)
+        self._configure_item(self.items[-1], self.width - 1)
 
     def is_stringable(self):
         # TODO WChar
@@ -2314,15 +2313,14 @@ class Array(Field):
             stream = bitwrap.BitwrappedStream(six.BytesIO(data))
             res = self.field_cls(stream)
             res._pfp__watch(self)
-            res._pfp__parent = self
-            res._pfp__array_idx = idx
-            res._pfp__name = "{}[{}]".format(self._pfp__name, idx)
+            self._configure_item(res, idx)
             return res
 
     def __setitem__(self, idx, value):
         if isinstance(value, Field):
             if self.raw_data is None:
                 self.items[idx] = value
+                self._configure_item(self.items[idx], idx)
             else:
                 if self.width < 0 or idx + 1 > self.width:
                     raise IndexError(idx)
@@ -2392,6 +2390,13 @@ class Array(Field):
         """Iterate over all items in this array
         """
         return self.items.__iter__()
+
+    def _configure_item(self, item, idx):
+        item._pfp__parent = self
+        item._pfp__name = "{}[{}]".format(self._pfp__name, idx)
+        item._pfp__array_idx = idx
+        if self._pfp__offset >= 0 and self.raw_data is not None:
+            item._pfp__offset = self._pfp__offset + self.field_cls.width * idx
 
 
 # http://www.sweetscape.com/010editor/manual/ArraysStrings.htm
