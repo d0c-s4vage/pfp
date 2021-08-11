@@ -463,6 +463,25 @@ class TestStructUnion(utils.PfpTestCase):
         self.assertEquals(chars[1], 0x42)
         self.assertEquals(chars[2], 0x43)
 
+    def test_struct_set_value(self):
+        dom = self._test_parse_build(
+            "abc",
+            """
+                typedef struct {
+                    char first;
+                    char second;
+                    char third;
+                } three_bytes;
+
+                three_bytes bytes;
+            """,
+        )
+
+        dom.bytes._pfp__set_value([ord("x"), ord("y"), ord("z")])
+        self.assertEqual(dom.bytes.first, ord("x"))
+        self.assertEqual(dom.bytes.second, ord("y"))
+        self.assertEqual(dom.bytes.third, ord("z"))
+
 
 if __name__ == "__main__":
     unittest.main()
