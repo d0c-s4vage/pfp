@@ -2211,17 +2211,21 @@ class Array(Field):
         #        len(value)
         #    ))
 
-        if len(value) > len(self.items):
-            self.items.extend([None] * (len(value) - len(self.items)))
-
-        for idx, item in enumerate(value):
+        new_items = []
+        for item in value:
             if not isinstance(item, Field):
                 new_item = self.field_cls()
                 new_item._pfp__set_value(item)
                 item = new_item
-            self.items[idx] = item
+            new_items.append(item)
 
-        self.width = len(self.items)
+        if len(new_items) < len(self.items):
+            new_items += self.items[len(new_items):]
+
+        self.items = []
+        self.width = 0
+        for item in new_items:
+            self.append(item)
 
         # see #54 - make sure raw_data is set to None if overwriting with
         # a new array/list/set/tuple
