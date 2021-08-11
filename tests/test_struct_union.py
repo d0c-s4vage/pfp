@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pfp
 import pfp.fields
 import pfp.interp
-import pfp.utils
 
 import utils
 
@@ -146,7 +145,7 @@ class TestStructUnion(utils.PfpTestCase):
         self.assertEqual(dom.root.nested1.nested2.array[3]._pfp__path(), "root.nested1.nested2.array[3]")
     
     def test_struct(self):
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "abcddcba",
             """
                 typedef struct {
@@ -159,7 +158,7 @@ class TestStructUnion(utils.PfpTestCase):
         )
     
     def test_forward_declared_struct(self):
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "\x00\x01",
             """
                 struct fp16;
@@ -302,7 +301,7 @@ class TestStructUnion(utils.PfpTestCase):
     #        )
 
     def test_union(self):
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "abcd",
             """
                 typedef union {
@@ -410,7 +409,7 @@ class TestStructUnion(utils.PfpTestCase):
         # the problem is that the script still needs to be able to access
         # the last declared field by the original name and not the
         # suffixed one.
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "\x01a\x01b\x01c",
             """
                 while(!FEof()) {
@@ -425,7 +424,7 @@ class TestStructUnion(utils.PfpTestCase):
     def test_implicit_array_dot_notation_for_last(self):
         # I BELIEVE scripts are able to access implicit array items
         # by index OR directly access the last one without an index
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "\x01a\x01b\x01c",
             """
                 typedef struct {
@@ -459,9 +458,28 @@ class TestStructUnion(utils.PfpTestCase):
             """,
         )
         chars = [x for x in dom.bytes]
-        self.assertEquals(chars[0], 0x41)
-        self.assertEquals(chars[1], 0x42)
-        self.assertEquals(chars[2], 0x43)
+        self.assertEqual(chars[0], 0x41)
+        self.assertEqual(chars[1], 0x42)
+        self.assertEqual(chars[2], 0x43)
+
+    def test_struct_set_value(self):
+        dom = self._test_parse_build(
+            "abc",
+            """
+                typedef struct {
+                    char first;
+                    char second;
+                    char third;
+                } three_bytes;
+
+                three_bytes bytes;
+            """,
+        )
+
+        dom.bytes._pfp__set_value([ord("x"), ord("y"), ord("z")])
+        self.assertEqual(dom.bytes.first, ord("x"))
+        self.assertEqual(dom.bytes.second, ord("y"))
+        self.assertEqual(dom.bytes.third, ord("z"))
 
 
 if __name__ == "__main__":
