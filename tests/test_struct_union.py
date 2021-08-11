@@ -459,9 +459,9 @@ class TestStructUnion(utils.PfpTestCase):
             """,
         )
         chars = [x for x in dom.bytes]
-        self.assertEquals(chars[0], 0x41)
-        self.assertEquals(chars[1], 0x42)
-        self.assertEquals(chars[2], 0x43)
+        self.assertEqual(chars[0], 0x41)
+        self.assertEqual(chars[1], 0x42)
+        self.assertEqual(chars[2], 0x43)
 
     def test_struct_set_value(self):
         dom = self._test_parse_build(
