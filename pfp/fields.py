@@ -2098,13 +2098,14 @@ class Array(Field):
     def __init__(self, width, field_cls, stream=None, metadata_processor=None):
         """ Create an array field of size "width" from the stream
         """
+        self.items = []
+
         super(Array, self).__init__(
             stream=None, metadata_processor=metadata_processor
         )
 
         self.width = width
         self.field_cls = field_cls
-        self.items = []
         self.raw_data = None
         self.implicit = False
 
@@ -2140,6 +2141,7 @@ class Array(Field):
     def append(self, item):
         # TODO check for consistent type
         item._pfp__parent = self
+        item._pfp__name = "{}[{}]".format(self._pfp__name, self.width)
         self.items.append(item)
         self.width = len(self.items)
 
@@ -2254,7 +2256,6 @@ class Array(Field):
             self.items = []
             for x in six.moves.range(PYVAL(self.width)):
                 field = self.field_cls(stream)
-                field._pfp__name = "{}[{}]".format(self._pfp__name, x)
                 self.append(field)
 
             if self._pfp__can_unpack():
@@ -2336,6 +2337,13 @@ class Array(Field):
             self[idx]._pfp__set_value(value)
 
         self._pfp__notify_update(self)
+
+    def __setattr__(self, name, value):
+        super(Array, self).__setattr__(name, value)
+
+        if name == "_pfp__name":
+            for idx, item in enumerate(self.items):
+                item._pfp__name = "{}[{}]".format(self._pfp__name, idx)
 
     def __repr__(self):
         other = ""

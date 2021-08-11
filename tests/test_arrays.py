@@ -374,5 +374,31 @@ class TestArrays(utils.PfpTestCase):
         self.assertIs(dom.the_array[1]._pfp__parent, dom.the_array)
         self.assertIs(dom.the_array[2]._pfp__parent, dom.the_array)
 
+    def test_path_for_array_items(self):
+        dom = self._test_parse_build(
+            "\x00\x00\x11\x11\x22\x22",
+            """
+                typedef struct _two_chars {
+                    char x;
+                    char y;
+                } two_chars;
+
+                struct {
+                    two_chars the_array[3];
+                } container;
+            """
+        )
+
+        self.assertEqual(dom.container.the_array[1]._pfp__path(), "container.the_array[1]")
+        self.assertEqual(dom.container.the_array[1].x._pfp__path(), "container.the_array[1].x")
+        self.assertEqual(dom.container.the_array[1].y._pfp__path(), "container.the_array[1].y")
+
+        adhoc_array = Array(3, dom.container.the_array.field_cls)
+        adhoc_array._pfp__name = "new_name"
+        self.assertEqual(adhoc_array[1]._pfp__path(), "new_name[1]")
+        self.assertEqual(adhoc_array[1].x._pfp__path(), "new_name[1].x")
+        self.assertEqual(adhoc_array[1].y._pfp__path(), "new_name[1].y")
+
+
 if __name__ == "__main__":
     unittest.main()
