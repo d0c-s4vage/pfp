@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 import pfp
 import pfp.fields
 import pfp.interp
-import pfp.utils
 
 import utils
 
@@ -146,7 +145,7 @@ class TestStructUnion(utils.PfpTestCase):
         self.assertEqual(dom.root.nested1.nested2.array[3]._pfp__path(), "root.nested1.nested2.array[3]")
     
     def test_struct(self):
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "abcddcba",
             """
                 typedef struct {
@@ -159,7 +158,7 @@ class TestStructUnion(utils.PfpTestCase):
         )
     
     def test_forward_declared_struct(self):
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "\x00\x01",
             """
                 struct fp16;
@@ -302,7 +301,7 @@ class TestStructUnion(utils.PfpTestCase):
     #        )
 
     def test_union(self):
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "abcd",
             """
                 typedef union {
@@ -410,7 +409,7 @@ class TestStructUnion(utils.PfpTestCase):
         # the problem is that the script still needs to be able to access
         # the last declared field by the original name and not the
         # suffixed one.
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "\x01a\x01b\x01c",
             """
                 while(!FEof()) {
@@ -425,7 +424,7 @@ class TestStructUnion(utils.PfpTestCase):
     def test_implicit_array_dot_notation_for_last(self):
         # I BELIEVE scripts are able to access implicit array items
         # by index OR directly access the last one without an index
-        dom = self._test_parse_build(
+        self._test_parse_build(
             "\x01a\x01b\x01c",
             """
                 typedef struct {
