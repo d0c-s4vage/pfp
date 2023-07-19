@@ -42,7 +42,7 @@ positional arguments:
                         piped data
 
 optional arguments:
-  -h, --help            show this help message and exit
+  -h, --help            Show this help message and exit
   -t TEMPLATE, --template TEMPLATE
                         The template to parse with
   --show-offsets        Show offsets in the parsed data of parsed fields
