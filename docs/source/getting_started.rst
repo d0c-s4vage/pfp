@@ -48,7 +48,7 @@ structures out of the input stream is shown below:
         struct {
             string type;
             int length;
-            char value[length;
+            char value[length];
         } tlv;
     }
 
